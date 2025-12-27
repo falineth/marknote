@@ -413,7 +413,9 @@ void DocumentHandler::load(const QUrl &fileUrl)
 
                 QTextCursor cursor(textDocument());
                 cursor.setPosition(pos);
-                if (!cursor.currentList() || cursor.currentList()->item(0) == currentBlock) {
+                if (!cursor.currentList()
+                   || (cursor.currentList()->item(0) == currentBlock
+                       && cursor.currentList()->format().indent() <= 1)) {
                     QTextBlockFormat format;
                     format.setTopMargin(textMargin);
                     cursor.mergeBlockFormat(format);
