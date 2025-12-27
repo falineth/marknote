@@ -453,45 +453,90 @@ Kirigami.ScrollablePage {
                         Kirigami.Theme.inherit: false
                         property color textcolor: Kirigami.Theme.textColor
                     }
-                    Kirigami.ActionTextField {
-                        id: renameField
-
+                    Item {
                         Layout.fillWidth: true
                         Layout.leftMargin: Kirigami.Units.smallSpacing
+                        height: renameField.height
 
-                        // Ensure that we elide as expected, otherwise it cuts off the first half of any long title
-                        autoScroll: false
-                        text: name
-                        onAccepted: acceptedAction.triggered();
-                        visible: true
-                        enabled: false
-                        background.visible: enabled
-                        topPadding: enabled ? Kirigami.Units.smallSpacing : 0
-                        leftPadding: enabled ? Kirigami.Units.smallSpacing : 0
-                        color: textcolorItem.textcolor
+                        Kirigami.ActionTextField {
+                            id: renameField
 
-                        rightActions: [
-                            Kirigami.Action {
-                                id: acceptedAction
-                                icon.name: "answer-correct"
-                                enabled: renameField.text.length > 0
-                                visible: renameField.enabled
-                                onTriggered: {
-                                    if (renameField.text.length === 0) {
-                                        renameField.text = delegateItem.name;
+                            anchors.fill: parent
+
+                            // Ensure that we elide as expected, otherwise it cuts off the first half of any long title
+                            autoScroll: false
+                            text: name
+                            onAccepted: acceptedAction.triggered();
+                            visible: renameField.enabled
+                            enabled: false
+                            background.visible: enabled
+                            topPadding: enabled ? Kirigami.Units.smallSpacing : 0
+                            leftPadding: enabled ? Kirigami.Units.smallSpacing : 0
+                            color: textcolorItem.textcolor
+
+                            rightActions: [
+                                Kirigami.Action {
+                                    id: acceptedAction
+                                    icon.name: "answer-correct"
+                                    enabled: renameField.text.length > 0
+                                    visible: renameField.enabled
+                                    onTriggered: {
+                                        if (renameField.text.length === 0) {
+                                            renameField.text = delegateItem.name;
+                                        }
+                                        if (renameField.text === delegateItem.name) {
+                                            renameField.enabled = false
+                                        }
+                                        notesModel.renameNote(delegateItem.fileUrl, renameField.text);
+                                        if (NavigationController.notePath === delegateItem.path) {
+                                            NavigationController.notePath = renameField.text + '.md';
+                                        }
                                     }
-                                    if (renameField.text === delegateItem.name) {
-                                        renameField.enabled = false
-                                    }
-                                    notesModel.renameNote(delegateItem.fileUrl, renameField.text);
-                                    if (NavigationController.notePath === delegateItem.path) {
-                                        NavigationController.notePath = renameField.text + '.md';
+                                }
+                            ]
+
+                        }
+                        Item {
+                            anchors.fill: parent
+
+                            visible: !renameField.enabled
+
+                            Label {
+                                id: noteNameLabel
+
+                                anchors.fill: parent
+
+                                elide: Qt.ElideRight
+                                verticalAlignment: Text.AlignVCenter
+
+                                text: name
+
+                                HoverHandler {
+                                    id: noteNameLabelHover
+                                }
+
+                                ToolTip {
+                                    id: pageListItemToolTip
+
+                                    parent: noteNameLabel
+                                    x: 0
+                                    y: Math.round((parent.height - height) / 2)
+
+                                    visible: noteNameLabel.implicitWidth > noteNameLabel.width && (noteNameLabelHover.hovered || pageListItemMouseArea.containsMouse)
+
+                                    text: noteNameLabel.text
+
+                                    MouseArea {
+                                        id: pageListItemMouseArea
+
+                                        anchors.fill: parent
+
+                                        hoverEnabled: true
                                     }
                                 }
                             }
-                        ]
+                        }
                     }
-
                     Label {
                         Layout.leftMargin: Kirigami.Units.smallSpacing
                         text: Qt.formatDateTime(date, Qt.SystemLocaleDate)
