@@ -411,7 +411,7 @@ Kirigami.ScrollablePage {
                             anchors.fill: parent
 
                             // Ensure that we elide as expected, otherwise it cuts off the first half of any long title
-                            autoScroll: false
+                            autoScroll: renameField.enabled
                             text: name
                             onAccepted: acceptedAction.triggered();
                             visible: renameField.enabled
